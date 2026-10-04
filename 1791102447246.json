@@ -1,0 +1,129 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 1: Load Dataset\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "import seaborn as sns\n",
+    "from sklearn.preprocessing import LabelEncoder\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "\n",
+    "# Membaca file dataset\n",
+    "df = pd.read_csv('dataset_tugas1_preprocessing.csv')\n",
+    "print('--- 5 Baris Pertama Dataset ---')\n",
+    "print(df.head(), '\\n')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 2: Eksplorasi Awal (EDA)\n",
+    "print('--- Struktur dan Tipe Data ---')\n",
+    "print(df.info(), '\\n')\n",
+    "\n",
+    "print('--- Jumlah Nilai Hilang per Kolom ---')\n",
+    "print(df.isnull().sum(), '\\n')\n",
+    "\n",
+    "print('--- Statistik Deskriptif ---')\n",
+    "print(df.describe(include='all'), '\\n')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 3: Menangani Missing Values\n",
+    "df['Nilai_Akhir'] = df['Nilai_Akhir'].fillna(df['Nilai_Akhir'].median())\n",
+    "df['Umur'] = df['Umur'].fillna(df['Umur'].median())\n",
+    "print('Missing values setelah diimputasi:')\n",
+    "print(df[['Nilai_Akhir', 'Umur']].isnull().sum())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 4: Normalisasi Format Tanggal\n",
+    "df['Tanggal_Ujian'] = pd.to_datetime(df['Tanggal_Ujian'], errors='coerce')\n",
+    "print(df['Tanggal_Ujian'].dtypes)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 5: Encoding Label\n",
+    "encoder = LabelEncoder()\n",
+    "cols_to_encode = ['Nama', 'Jenis_Kelamin', 'Prodi', 'Status', 'Nilai_Akhir']\n",
+    "\n",
+    "for col in cols_to_encode:\n",
+    "    if col in df.columns:\n",
+    "        df[col] = encoder.fit_transform(df[col].astype(str))\n",
+    "\n",
+    "print('--- Data Setelah Encoding ---')\n",
+    "print(df.head(), '\\n')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 6: Split Data (80% Latih, 20% Uji)\n",
+    "X = df.drop(columns=['Status'])\n",
+    "y = df['Status']\n",
+    "\n",
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+    "print(f'Jumlah data latih: {X_train.shape[0]} baris')\n",
+    "print(f'Jumlah data uji: {X_test.shape[0]} baris')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Tahap 7: Visualisasi\n",
+    "plt.figure(figsize=(8, 5))\n",
+    "sns.histplot(df['Umur'], bins=10, kde=True, color='blue')\n",
+    "plt.title('Histogram Distribusi Umur Mahasiswa')\n",
+    "plt.xlabel('Umur')\n",
+    "plt.ylabel('Frekuensi')\n",
+    "plt.show()\n",
+    "\n",
+    "df_viz = pd.read_csv('dataset_tugas1_preprocessing.csv')\n",
+    "plt.figure(figsize=(10, 5))\n",
+    "sns.countplot(data=df_viz, x='Prodi', palette='viridis')\n",
+    "plt.title('Jumlah Mahasiswa per Program Studi')\n",
+    "plt.xlabel('Program Studi')\n",
+    "plt.ylabel('Jumlah')\n",
+    "plt.xticks(rotation=45)\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "language_info": {
+   "name": "python"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_denominator": 5
+}
